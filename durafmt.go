@@ -11,8 +11,9 @@ import (
 )
 
 var (
-	Units      = []string{"years", "weeks", "days", "hours", "minutes", "seconds", "milliseconds", "microseconds"}
+	units      = []string{"years", "weeks", "days", "hours", "minutes", "seconds", "milliseconds", "microseconds"}
 	unitsShort = []string{"y", "w", "d", "h", "m", "s", "ms", "µs"}
+	unitsAlias = map[string]string{}
 )
 
 // Durafmt holds the parsed duration and the original input duration.
@@ -20,6 +21,17 @@ type Durafmt struct {
 	duration time.Duration
 	input    string // Used as reference.
 	limitN   int    // Non-zero to limit only first N elements to output.
+}
+
+func SetAlias(unit, alias string) {
+	unitsAlias[unit] = alias
+}
+
+func GetAlias(unit string) string {
+	if v, ok := unitsAlias[unit]; ok {
+		return v
+	}
+	return unit
 }
 
 // LimitFirstN sets the output format, outputing only first N elements. n == 0 means no limit.
@@ -114,17 +126,17 @@ func (d *Durafmt) String() string {
 	}
 
 	// Construct duration string.
-	for i := range Units {
-		u := Units[i]
+	for i := range units {
+		u := units[i]
 		v := durationMap[u]
 		strval := strconv.FormatInt(v, 10)
 		switch {
 		// add to the duration string if v > 1.
 		case v > 1:
-			duration += strval + " " + u + " "
+			duration += strval + " " + GetAlias(u) + " "
 		// remove the plural 's', if v is 1.
 		case v == 1:
-			duration += strval + " " + strings.TrimRight(u, "s") + " "
+			duration += strval + " " + strings.TrimRight(GetAlias(u), "s") + " "
 		// omit any value with 0s or 0.
 		case d.duration.String() == "0" || d.duration.String() == "0s":
 			pattern := fmt.Sprintf("^-?0%s$", unitsShort[i])
@@ -133,7 +145,7 @@ func (d *Durafmt) String() string {
 				return ""
 			}
 			if isMatch {
-				duration += strval + " " + u
+				duration += strval + " " + GetAlias(u)
 			}
 
 		// omit any value with 0.
