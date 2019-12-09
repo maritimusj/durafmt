@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	units      = []string{"years", "weeks", "days", "hours", "minutes", "seconds", "milliseconds", "microseconds"}
+	Units      = []string{"years", "weeks", "days", "hours", "minutes", "seconds", "milliseconds", "microseconds"}
 	unitsShort = []string{"y", "w", "d", "h", "m", "s", "ms", "µs"}
 )
 
@@ -114,8 +114,8 @@ func (d *Durafmt) String() string {
 	}
 
 	// Construct duration string.
-	for i := range units {
-		u := units[i]
+	for i := range Units {
+		u := Units[i]
 		v := durationMap[u]
 		strval := strconv.FormatInt(v, 10)
 		switch {
